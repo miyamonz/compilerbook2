@@ -106,7 +106,9 @@ Token *tokenize() {
       continue;
     }
 
-    if (*p == '+' || *p == '-' || *p=='*' || *p == '/') {
+    if (*p == '+' || *p == '-' || *p=='*' || *p == '/'
+        || *p == '(' || *p == ')'
+        ) {
       cur = new_token(TK_RESERVED, cur, p++);
       continue;
     }
@@ -159,7 +161,7 @@ Node *new_node_num(int val) {
 }
 
 Node *mul();
-Node *num();
+Node *primary();
 Node *expr() {
   Node *node = mul();
 
@@ -174,19 +176,27 @@ Node *expr() {
 }
 
 Node *mul() {
-  Node *node = num();
+  Node *node = primary();
 
   for (;;) {
     if (consume('*'))
-      node = new_node(ND_MUL, node, num());
+      node = new_node(ND_MUL, node, primary());
     else if (consume('/'))
-      node = new_node(ND_DIV, node, num());
+      node = new_node(ND_DIV, node, primary());
     else
       return node;
   }
 }
 
-Node *num() {
+Node *primary() {
+  // 次のトークンが"("なら、"(" expr ")"のはず
+  if (consume('(')) {
+    Node *node = expr();
+    expect(')');
+    return node;
+  }
+
+  // そうでなければ数値のはず
   return new_node_num(expect_number());
 }
 
