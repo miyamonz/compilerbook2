@@ -34,3 +34,8 @@ assert 2 '-3+5'
 assert 3 '-(-6)/2'
 assert 6 '-3*-2'
 assert 15 '3*+5'
+
+assert 0 '0==1'
+assert 1 '42==42'
+assert 1 '0!=1'
+assert 0 '42!=42'
