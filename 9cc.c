@@ -106,9 +106,7 @@ Token *tokenize() {
       continue;
     }
 
-    if (*p == '+' || *p == '-' || *p=='*' || *p == '/'
-        || *p == '(' || *p == ')'
-        ) {
+    if (strchr("+-*/()", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       continue;
     }
