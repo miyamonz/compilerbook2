@@ -1,0 +1,8 @@
+version: "3.7"
+services:
+  cc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/home/user
