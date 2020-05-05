@@ -22,3 +22,5 @@ assert 42 42
 assert 21 '5+20-4'
 assert 0 '10-1-2-3-4'
 assert 21 '5 +      20          -4'
+assert 47 '5+6*7'
+assert 23 '5*6-7'
