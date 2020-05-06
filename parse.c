@@ -1,6 +1,7 @@
 #include "9cc.h"
 
 static Node *expr();
+static Node *assign();
 static Node *equality();
 static Node *relational();
 static Node *add();
@@ -30,6 +31,13 @@ static Node *new_node_num(int val) {
   return node;
 }
 
+static Node *new_var_node(char name) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_VAR;
+  node->name = name;
+  return node;
+}
+
 static Node *stmt() {
   Node *node;
 
@@ -42,7 +50,13 @@ static Node *stmt() {
 }
 
 static Node *expr() {
-  return equality();
+  return assign();
+}
+static Node *assign() {
+  Node *node = equality();
+  if(consume("="))
+    node = new_node(ND_ASSIGN, node, assign());
+  return node;
 }
 static Node *equality() {
   Node *node = relational();
@@ -116,8 +130,14 @@ static Node *primary() {
     return node;
   }
 
-  // そうでなければ数値のはず
-  return new_node_num(expect_number());
+  Node *node;
+  if(token->kind == TK_IDENT) {
+    node = new_var_node(*token->str);
+    token = token->next;
+  }
+  else
+    node = new_node_num(expect_number());
+  return node;
 }
 
 Node *parse() {
