@@ -4,6 +4,7 @@
 // accumulated to this list.
 Var *locals;
 
+static Node *compound_stmt();
 static Node *expr();
 static Node *assign();
 static Node *equality();
@@ -92,6 +93,7 @@ static Var *new_lvar(char *name) {
 //      | "if" "(" expr ")" stmt ("else" stmt)?
 //      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 //      | "while" "(" expr ")" stmt
+//      | "{" compount-stmt
 //      | expr ";"
 static Node *stmt() {
   if(consume("return")) {
@@ -139,8 +141,25 @@ static Node *stmt() {
     node->then = stmt();
     return node;
   }
+
+  if(consume("{"))
+    return compound_stmt();
+
   Node *node = new_unary(ND_EXPR_STMT, expr());
   expect(";");
+  return node;
+}
+
+// compund-stmt = stmt* }
+static Node *compound_stmt() {
+  Node head = {};
+  Node *cur = &head;
+
+  while(!consume("}"))
+    cur = cur->next = stmt();
+
+  Node *node = new_node(ND_BLOCK);
+  node->body = head.next;
   return node;
 }
 
