@@ -101,3 +101,7 @@ Node *primary() {
   // そうでなければ数値のはず
   return new_node_num(expect_number());
 }
+
+Node *parse() {
+  return expr();
+}

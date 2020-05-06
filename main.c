@@ -7,9 +7,8 @@ int main(int argc, char **argv) {
   }
 
   // トークナイズしてパースする
-  user_input = argv[1];
-  token = tokenize();
-  Node *node = expr();
+  token = tokenize(argv[1]);
+  Node *node = parse();
 
   // アセンブリの前半部分を出力
   printf(".intel_syntax noprefix\n");

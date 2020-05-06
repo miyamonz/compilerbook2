@@ -30,13 +30,10 @@ void error_at(char *loc, char *fmt, ...);
 bool consume(char *op);
 void expect(char *op);
 int expect_number();
-Token *tokenize();
+Token *tokenize(char *p);
 
 // 現在着目しているトークン
 Token *token;
-
-// 入力プログラム
-char *user_input;
 
 //
 // parse.c
@@ -62,7 +59,7 @@ struct Node {
   Node *rhs;     // 右辺
   int val;       // kindがND_NUMの場合のみ使う
 };
-Node *expr();
+Node *parse();
 
 //
 // codegen.c
