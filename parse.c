@@ -88,13 +88,27 @@ static Var *new_lvar(char *name) {
   return var;
 }
 
+// stmt = "return" expr ";"
+//      | "if" "(" expr ")" stmt ("else" stmt)?
+//      | expr ";"
 static Node *stmt() {
-  Node *node;
-
-  if(consume("return"))
-    node = new_unary(ND_RETURN, expr());
-  else
-    node = new_unary(ND_EXPR_STMT, expr());
+  if(consume("return")) {
+    Node *node = new_unary(ND_RETURN, expr());
+    expect(";");
+    return node;
+  }
+  if(consume("if")) {
+    Node *node = new_node(ND_IF);
+    // expr and return node here
+    expect("(");
+    node->cond = expr();
+    expect(")");
+    node->then = stmt();
+    if(consume("else"))
+      node->els = stmt();
+    return node;
+  }
+  Node *node = new_unary(ND_EXPR_STMT, expr());
   expect(";");
   return node;
 }

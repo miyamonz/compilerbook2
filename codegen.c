@@ -1,5 +1,7 @@
 #include "9cc.h"
 
+static int labelseq = 1;
+
 static void gen_addr(Node *node) {
   if(node->kind == ND_VAR) {
     printf("  lea rax, [rbp-%d]\n", node->var->offset);
@@ -83,6 +85,26 @@ static void gen_expr(Node *node) {
 
 static void gen_stmt(Node *node) {
   switch(node->kind) {
+    case ND_IF:
+      gen_expr(node->cond);
+      int seq = labelseq++;
+      if(node->els) {
+        printf("  pop rax\n");
+        printf("  cmp rax, 0\n");
+        printf("  je .L.else.%d\n", seq);
+        gen_stmt(node->then);
+        printf("  jmp .L.end.%d\n", seq);
+        printf(".L.else.%d:\n", seq);
+        gen_stmt(node->els);
+        printf(".L.end.%d:\n", seq);
+      } else {
+        printf("  pop rax\n");
+        printf("  cmp rax, 0\n");
+        printf("  je .L.end.%d\n", seq);
+        gen_stmt(node->then);
+        printf(".L.end.%d:\n", seq);
+      }
+      return;
     case ND_RETURN:
       gen_expr(node->lhs);
       printf("  pop rax\n");
