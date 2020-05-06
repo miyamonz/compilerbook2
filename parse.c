@@ -90,6 +90,7 @@ static Var *new_lvar(char *name) {
 
 // stmt = "return" expr ";"
 //      | "if" "(" expr ")" stmt ("else" stmt)?
+//      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
 //      | expr ";"
 static Node *stmt() {
   if(consume("return")) {
@@ -106,6 +107,26 @@ static Node *stmt() {
     node->then = stmt();
     if(consume("else"))
       node->els = stmt();
+    return node;
+  }
+  if(consume("for")) {
+    Node *node = new_node(ND_FOR);
+    // expr and return node here
+    expect("(");
+    if(!consume(";")) {
+      node->init = new_unary(ND_EXPR_STMT, expr());
+      expect(";");
+    }
+    if(!consume(";")) {
+      node->cond = expr();
+      expect(";");
+    }
+    if(!consume(")")) {
+      node->inc = new_unary(ND_EXPR_STMT, expr());
+      expect(")");
+    }
+
+    node->then = stmt();
     return node;
   }
   Node *node = new_unary(ND_EXPR_STMT, expr());

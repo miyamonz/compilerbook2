@@ -71,4 +71,8 @@ assert 3 'if(1-1) return 2; return 3;'
 assert 2 'if(1) return 2; return 3;'
 assert 2 'if(2-1) return 2; return 3;'
 
+assert 5 'for(;;) return 5;'
+assert 20 'a=0; for(i=0; i<2 ;i=i+1) a= a+10; return a;'
+assert 10 'b=0; for(i=0; i<5 ;i=i+1) b= b+i; return b;'
+
 echo OK
