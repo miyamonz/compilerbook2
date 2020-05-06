@@ -91,6 +91,7 @@ static Var *new_lvar(char *name) {
 // stmt = "return" expr ";"
 //      | "if" "(" expr ")" stmt ("else" stmt)?
 //      | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+//      | "while" "(" expr ")" stmt
 //      | expr ";"
 static Node *stmt() {
   if(consume("return")) {
@@ -126,6 +127,15 @@ static Node *stmt() {
       expect(")");
     }
 
+    node->then = stmt();
+    return node;
+  }
+  if(consume("while")) {
+    Node *node = new_node(ND_WHILE);
+    // expr and return node here
+    expect("(");
+    node->cond = expr();
+    expect(")");
     node->then = stmt();
     return node;
   }

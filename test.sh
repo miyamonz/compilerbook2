@@ -75,4 +75,6 @@ assert 5 'for(;;) return 5;'
 assert 20 'a=0; for(i=0; i<2 ;i=i+1) a= a+10; return a;'
 assert 10 'b=0; for(i=0; i<5 ;i=i+1) b= b+i; return b;'
 
+assert 5 'i=0; while(i<5) i = i+1; return i;'
+
 echo OK
