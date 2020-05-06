@@ -1,14 +1,14 @@
 #include "9cc.h"
 
-Node *expr();
-Node *equality();
-Node *relational();
-Node *add();
-Node *mul();
-Node *unary();
-Node *primary();
+static Node *expr();
+static Node *equality();
+static Node *relational();
+static Node *add();
+static Node *mul();
+static Node *unary();
+static Node *primary();
 
-Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
+static Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
   node->lhs = lhs;
@@ -16,17 +16,17 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
   return node;
 }
 
-Node *new_node_num(int val) {
+static Node *new_node_num(int val) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->val = val;
   return node;
 }
 
-Node *expr() {
+static Node *expr() {
   return equality();
 }
-Node *equality() {
+static Node *equality() {
   Node *node = relational();
 
   for(;;) {
@@ -39,7 +39,7 @@ Node *equality() {
   }
 }
 
-Node *relational() {
+static Node *relational() {
   Node *node = add();
 
   for(;;) {
@@ -56,7 +56,7 @@ Node *relational() {
   }
 }
 
-Node *add() {
+static Node *add() {
   Node *node = mul();
 
   for (;;) {
@@ -69,7 +69,7 @@ Node *add() {
   }
 }
 
-Node *mul() {
+static Node *mul() {
   Node *node = unary();
 
   for (;;) {
@@ -82,7 +82,7 @@ Node *mul() {
   }
 }
 
-Node *unary() {
+static Node *unary() {
   if(consume("+"))
     return primary();
   if(consume("-"))
@@ -90,7 +90,7 @@ Node *unary() {
   return primary();
 }
 
-Node *primary() {
+static Node *primary() {
   // 次のトークンが"("なら、"(" expr ")"のはず
   if (consume("(")) {
     Node *node = expr();
