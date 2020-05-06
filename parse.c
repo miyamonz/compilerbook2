@@ -19,7 +19,7 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
 static Node *new_node_unary(NodeKind kind, Node *expr) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
-  node->lhs = expr; // use lhs as expr
+  node->lhs = expr; // use lhs as expr or return value
   return node;
 }
 
@@ -31,7 +31,12 @@ static Node *new_node_num(int val) {
 }
 
 static Node *stmt() {
-  Node *node = new_node_unary(ND_EXPR_STMT, expr());
+  Node *node;
+
+  if(consume("return"))
+    node = new_node_unary(ND_RETURN, expr());
+  else
+    node = new_node_unary(ND_EXPR_STMT, expr());
   expect(";");
   return node;
 }

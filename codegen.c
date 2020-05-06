@@ -53,6 +53,11 @@ static void gen_expr(Node *node) {
 
 static void gen_stmt(Node *node) {
   switch(node->kind) {
+    case ND_RETURN:
+      gen_expr(node->lhs);
+      printf("  pop rax\n");
+      printf("  jmp .L.return\n");
+      return;
     case ND_EXPR_STMT:
       gen_expr(node->lhs);
       printf("  pop rax\n");
@@ -72,5 +77,6 @@ void codegen(Node *node) {
   for(Node *n = node; n; n = n->next) {
     gen_stmt(n);
   }
+  printf(".L.return:\n");
   printf("  ret\n");
 }
