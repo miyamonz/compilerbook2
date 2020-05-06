@@ -1,5 +1,9 @@
 #include "9cc.h"
 
+// All local variable instances created during parsing are
+// accumulated to this list.
+Var *locals;
+
 static Node *expr();
 static Node *assign();
 static Node *equality();
@@ -8,6 +12,13 @@ static Node *add();
 static Node *mul();
 static Node *unary();
 static Node *primary();
+
+static Var *find_var(Token *tok) {
+  for(Var *var = locals; var; var = var->next)
+    if(strlen(var->name) == tok->len && !strncmp(tok->str, var->name, tok->len))
+      return var;
+  return NULL;
+}
 
 // 次のトークンが期待している記号のときには、トークンを1つ読み進めて
 // 真を返す。それ以外の場合には偽を返す。
@@ -60,11 +71,19 @@ static Node *new_node_num(int val) {
   return node;
 }
 
-static Node *new_var_node(char name) {
+static Node *new_var_node(Var *var) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_VAR;
-  node->name = name;
+  node->var = var;
   return node;
+}
+
+static Var *new_lvar(char *name) {
+  Var *var = calloc(1, sizeof(Var));
+  var->name = name;
+  var->next = locals;
+  locals = var;
+  return var;
 }
 
 static Node *stmt() {
@@ -159,20 +178,27 @@ static Node *primary() {
     return node;
   }
 
-  Node *node;
   if(token->kind == TK_IDENT) {
-    node = new_var_node(*token->str);
+    Var *var = find_var(token);
+    if(!var)
+      var = new_lvar(strndup(token->str, token->len));
     token = token->next;
+    return new_var_node(var);
   }
-  else
-    node = new_node_num(expect_number());
+
+  Node *node = new_node_num(expect_number());
   return node;
 }
 
-Node *parse() {
+Function *parse() {
   Node head = {};
   Node *cur = &head;
   while(token->kind != TK_EOF)
     cur = cur->next = stmt();
-  return head.next;
+
+  Function *prog = calloc(1, sizeof(Function));
+  prog->node = head.next;
+  prog->locals = locals;
+
+  return prog;
 }

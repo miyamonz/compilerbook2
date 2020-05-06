@@ -2,8 +2,7 @@
 
 static void gen_addr(Node *node) {
   if(node->kind == ND_VAR) {
-    int offset = (node->name - 'a' + 1) * 8;
-    printf("  lea rax, [rbp-%d]\n", offset);
+    printf("  lea rax, [rbp-%d]\n", node->var->offset);
     printf("  push rax\n");
   }
 }
@@ -24,7 +23,7 @@ static void store(void) {
 static void gen_expr(Node *node) {
   switch(node->kind) {
     case ND_NUM:
-      printf("  push %d\n", node->val);
+      printf("  push %lu\n", node->val);
       return;
     case ND_VAR:
       gen_addr(node);
@@ -98,7 +97,7 @@ static void gen_stmt(Node *node) {
   }
 }
 
-void codegen(Node *node) {
+void codegen(Function *prog) {
 
   // アセンブリの前半部分を出力
   printf(".intel_syntax noprefix\n");
@@ -107,9 +106,9 @@ void codegen(Node *node) {
 
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 208\n");// 8 * 26(a-z)
+  printf("  sub rsp, %d\n", prog->stack_size);
 
-  for(Node *n = node; n; n = n->next) {
+  for(Node *n = prog->node; n; n = n->next) {
     gen_stmt(n);
   }
   printf(".L.return:\n");

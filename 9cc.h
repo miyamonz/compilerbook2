@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -37,6 +38,15 @@ Token *token;
 // parse.c
 //
 
+// Local variable
+typedef struct Var Var;
+struct Var {
+  Var *next;
+  char *name;
+  int offset;
+};
+
+// AST node
 typedef enum {
   ND_ADD,       // +
   ND_SUB,       // -
@@ -60,13 +70,21 @@ struct Node {
   Node *next;    // Next node
   Node *lhs;     // 左辺
   Node *rhs;     // 右辺
-  char name;     // use if kind == ND_VAR
-  int val;       // kindがND_NUMの場合のみ使う
+  Var *var;     // use if kind == ND_VAR
+  long val;       // kindがND_NUMの場合のみ使う
 };
-Node *parse();
+
+typedef struct Function Function;
+struct Function {
+  Node *node;
+  Var *locals;
+  int stack_size;
+};
+
+Function *parse();
 
 //
 // codegen.c
 //
 
-void codegen(Node *node);
+void codegen(Function *prog);
