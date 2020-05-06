@@ -51,6 +51,17 @@ static void gen_expr(Node *node) {
   printf("  push rax\n");
 }
 
+static void gen_stmt(Node *node) {
+  switch(node->kind) {
+    case ND_EXPR_STMT:
+      gen_expr(node->lhs);
+      printf("  pop rax\n");
+      return;
+    default:
+      error("invalid statement");
+  }
+}
+
 void codegen(Node *node) {
 
   // アセンブリの前半部分を出力
@@ -58,11 +69,8 @@ void codegen(Node *node) {
   printf(".global main\n");
   printf("main:\n");
 
-  // 抽象構文木を下りながらコード生成
-  gen_expr(node);
-
-  // スタックトップに式全体の値が残っているはずなので
-  // それをRAXにロードして関数からの返り値とする
-  printf("  pop rax\n");
+  for(Node *n = node; n; n = n->next) {
+    gen_stmt(n);
+  }
   printf("  ret\n");
 }

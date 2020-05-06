@@ -30,6 +30,7 @@ void error_at(char *loc, char *fmt, ...);
 bool consume(char *op);
 void expect(char *op);
 int expect_number();
+bool at_eof();
 Token *tokenize(char *p);
 
 // 現在着目しているトークン
@@ -40,21 +41,23 @@ Token *token;
 //
 
 typedef enum {
-  ND_ADD, // +
-  ND_SUB, // -
-  ND_MUL, // *
-  ND_DIV, // *
-  ND_EQ,  // ==
-  ND_NE,  // !=
-  ND_LT,  // <
-  ND_LE,  // <=
-  ND_NUM, // 整数
+  ND_ADD,       // +
+  ND_SUB,       // -
+  ND_MUL,       // *
+  ND_DIV,       // *
+  ND_EQ,        // ==
+  ND_NE,        // !=
+  ND_LT,        // <
+  ND_LE,        // <=
+  ND_EXPR_STMT, //Expression statement
+  ND_NUM,       // 整数
 } NodeKind;
 
 // 抽象構文木のノードの型
 typedef struct Node Node;
 struct Node {
   NodeKind kind; // ノードの型
+  Node *next;    // Next node
   Node *lhs;     // 左辺
   Node *rhs;     // 右辺
   int val;       // kindがND_NUMの場合のみ使う

@@ -16,10 +16,23 @@ static Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
   return node;
 }
 
+static Node *new_node_unary(NodeKind kind, Node *expr) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = kind;
+  node->lhs = expr; // use lhs as expr
+  return node;
+}
+
 static Node *new_node_num(int val) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_NUM;
   node->val = val;
+  return node;
+}
+
+static Node *stmt() {
+  Node *node = new_node_unary(ND_EXPR_STMT, expr());
+  expect(";");
   return node;
 }
 
@@ -103,5 +116,9 @@ static Node *primary() {
 }
 
 Node *parse() {
-  return expr();
+  Node head = {};
+  Node *cur = &head;
+  while(!at_eof())
+    cur = cur->next = stmt();
+  return head.next;
 }
